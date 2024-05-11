@@ -8,29 +8,29 @@ async function fun() {
 
     const $ = cheerio.load(response.data);
 
-    const products = $(".containerHeight");
-    let data = [];
+    let data = $(".containerHeight")
+      .map((index, element) => {
+        const name = $(element).find(".clr-shade4.h3-p-name").text().trim();
+        const price = $(element)
+          .find(".discountedPriceText.clr-p-black")
+          .text()
+          .trim();
+        const rating = $(element).find(".clr-shade-3").text().trim();
 
-    products.each((index, element) => {
-      const name = $(element).find(".clr-shade4.h3-p-name").text().trim();
-      const price = $(element)
-        .find(".discountedPriceText.clr-p-black")
-        .text()
-        .trim();
-      const rating = $(element)
-        .find(".discountedPriceText.clr-shade-3")
-        .text()
-        .trim();
+        return {
+          name: name,
+          price: price,
+          rating: rating,
+        };
+      })
+      .get();
 
-      data.push({ Name: name, Price: price, Rating: rating });
-    });
+    console.log(data);
 
     const ws = xlsx.utils.json_to_sheet(data);
     const wb = xlsx.utils.book_new();
     xlsx.utils.book_append_sheet(wb, ws, "Products");
     xlsx.writeFile(wb, "bewakoof_products.xlsx");
-
-    console.log("Data exported to bewakoof_products.xlsx");
   } catch (error) {
     console.error("Error:", error);
   }
